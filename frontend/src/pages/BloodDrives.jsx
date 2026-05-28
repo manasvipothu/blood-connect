@@ -8,20 +8,32 @@ import Button from '../components/Button';
 
 const BloodDrives = () => {
   const [drives, setDrives] = useState([]);
+  const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [uploadingFor, setUploadingFor] = useState(null);
+
+  const fetchDrivesAndRegistrations = async () => {
+    try {
+      const drivesRes = await axios.get('https://blood-connect-w1ox.onrender.com/api/drives');
+      setDrives(drivesRes.data);
+
+      const token = localStorage.getItem('token');
+      const role = localStorage.getItem('userRole');
+      if (token && role === 'donor') {
+        const regRes = await axios.get('https://blood-connect-w1ox.onrender.com/api/drives/my-registrations', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setRegistrations(regRes.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch data', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchDrives = async () => {
-      try {
-        const res = await axios.get('https://blood-connect-w1ox.onrender.com/api/drives');
-        setDrives(res.data);
-      } catch (error) {
-        console.error('Failed to fetch drives', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDrives();
+    fetchDrivesAndRegistrations();
   }, []);
 
   const handleRegister = async (driveId) => {
@@ -35,10 +47,50 @@ const BloodDrives = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('Successfully registered for the blood drive!');
+      fetchDrivesAndRegistrations();
     } catch (error) {
       console.error(error);
       alert(error.response?.data?.error || 'Failed to register');
     }
+  };
+
+  const handleUnregister = async (driveId) => {
+    if (!window.confirm("Are you sure you want to unregister from this drive?")) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`https://blood-connect-w1ox.onrender.com/api/drives/${driveId}/register`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert('Successfully unregistered from the blood drive.');
+      fetchDrivesAndRegistrations();
+    } catch (error) {
+      console.error(error);
+      alert('Failed to unregister');
+    }
+  };
+
+  const handleUploadCertificate = async (driveId, file) => {
+    if (!file) return;
+    
+    // Convert file to base64
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = async () => {
+      const base64String = reader.result;
+      try {
+        const token = localStorage.getItem('token');
+        await axios.post(`https://blood-connect-w1ox.onrender.com/api/drives/${driveId}/certificate`, 
+          { certificate_url: base64String }, 
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        alert('Certificate uploaded successfully!');
+        setUploadingFor(null);
+        fetchDrivesAndRegistrations();
+      } catch (error) {
+        console.error(error);
+        alert('Failed to upload certificate');
+      }
+    };
   };
 
   return (
@@ -59,16 +111,27 @@ const BloodDrives = () => {
           <div className="text-center py-10 text-bloodRed font-bold text-xl">Loading drives...</div>
         ) : drives.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {drives.map((drive, index) => (
+            {drives.map((drive, index) => {
+              const registration = registrations.find(r => r.drive_id === drive.id);
+              const isRegistered = !!registration;
+              
+              return (
               <motion.div
                 key={drive.id}
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <GlassCard className="h-full flex flex-col justify-between hover:border-bloodRed/50 transition-colors">
+                <GlassCard className={`h-full flex flex-col justify-between transition-colors ${isRegistered ? 'border-bloodRed shadow-[0_0_15px_rgba(255,42,42,0.15)]' : 'hover:border-bloodRed/50'}`}>
                   <div>
-                    <h3 className="text-2xl font-bold mb-2">{drive.title}</h3>
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-2xl font-bold">{drive.title}</h3>
+                      {isRegistered && (
+                        <span className="bg-bloodRed/20 text-bloodRed text-xs px-2 py-1 rounded font-bold border border-bloodRed/30">
+                          {registration.status === 'Attended' ? 'Attended' : 'Registered'}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-textMuted mb-4 line-clamp-3">{drive.description}</p>
                     
                     <div className="space-y-3 mb-6">
@@ -87,16 +150,62 @@ const BloodDrives = () => {
                     </div>
                   </div>
                   
-                  <Button 
-                    variant="primary" 
-                    className="w-full py-3 flex items-center justify-center gap-2"
-                    onClick={() => handleRegister(drive.id)}
-                  >
-                    <Users size={18} /> Register Now
-                  </Button>
+                  <div className="space-y-3">
+                    {!isRegistered ? (
+                      <Button 
+                        variant="primary" 
+                        className="w-full py-3 flex items-center justify-center gap-2"
+                        onClick={() => handleRegister(drive.id)}
+                      >
+                        <Users size={18} /> Register Now
+                      </Button>
+                    ) : (
+                      <>
+                        <div className="flex gap-2">
+                          <Button 
+                            variant="ghost" 
+                            className="w-1/2 py-2 text-red-400 hover:bg-red-500/10 hover:text-red-300 border border-red-500/20"
+                            onClick={() => handleUnregister(drive.id)}
+                          >
+                            Unregister
+                          </Button>
+                          
+                          <Button 
+                            variant="secondary" 
+                            className="w-1/2 py-2 bg-white/5"
+                            onClick={() => setUploadingFor(uploadingFor === drive.id ? null : drive.id)}
+                          >
+                            Certificate
+                          </Button>
+                        </div>
+                        
+                        {uploadingFor === drive.id && (
+                          <div className="mt-3 p-3 bg-darkBg border border-white/10 rounded-lg">
+                            <p className="text-xs text-textMuted mb-2">Upload proof of donation (Image/PDF)</p>
+                            <input 
+                              type="file" 
+                              accept="image/*,.pdf"
+                              className="text-xs w-full text-textColor file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-bloodRed file:text-white hover:file:bg-red-700"
+                              onChange={(e) => handleUploadCertificate(drive.id, e.target.files[0])}
+                            />
+                          </div>
+                        )}
+                        
+                        {registration.certificate_status !== 'None' && (
+                          <div className={`text-xs text-center mt-2 p-1 rounded ${
+                            registration.certificate_status === 'Verified' ? 'text-green-400 bg-green-400/10' : 
+                            registration.certificate_status === 'Rejected' ? 'text-red-400 bg-red-400/10' : 
+                            'text-yellow-400 bg-yellow-400/10'
+                          }`}>
+                            Certificate Status: {registration.certificate_status}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </GlassCard>
               </motion.div>
-            ))}
+            )})}
           </div>
         ) : (
           <div className="text-center py-20 bg-glassWhite rounded-2xl border border-white/10 backdrop-blur-lg">

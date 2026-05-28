@@ -19,6 +19,14 @@ const DriveRegistration = sequelize.define('DriveRegistration', {
     type: DataTypes.ENUM('Registered', 'Attended', 'Cancelled'),
     defaultValue: 'Registered',
   },
+  certificate_url: {
+    type: DataTypes.TEXT('long'),
+    allowNull: true,
+  },
+  certificate_status: {
+    type: DataTypes.ENUM('None', 'Pending', 'Verified', 'Rejected'),
+    defaultValue: 'None',
+  },
 }, {
   timestamps: true,
   createdAt: 'registered_at',

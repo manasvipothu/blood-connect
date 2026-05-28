@@ -15,12 +15,42 @@ const BankDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('inventory'); // inventory, createdrives, mydrives
   const [drives, setDrives] = useState([]);
+  const [isAttendeesModalOpen, setIsAttendeesModalOpen] = useState(false);
+  const [selectedDriveAttendees, setSelectedDriveAttendees] = useState(null);
   
   const [newDrive, setNewDrive] = useState({
     title: '', description: '', date: '', location: '', city: ''
   });
 
   const bloodGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+
+  const handleViewAttendees = async (driveId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`https://blood-connect-w1ox.onrender.com/api/drives/${driveId}/attendees`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSelectedDriveAttendees({ driveId, attendees: res.data });
+      setIsAttendeesModalOpen(true);
+    } catch (error) {
+      console.error(error);
+      alert('Failed to fetch attendees');
+    }
+  };
+
+  const handleVerifyAttendee = async (driveId, regId) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`https://blood-connect-w1ox.onrender.com/api/drives/${driveId}/attendees/${regId}/verify`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      alert('Attendee verified!');
+      handleViewAttendees(driveId);
+    } catch (error) {
+      console.error(error);
+      alert('Failed to verify attendee');
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -232,7 +262,9 @@ const BankDashboard = () => {
                               <h3 className="text-xl font-bold text-textColor">{drive.title}</h3>
                               <p className="text-textMuted text-sm mt-1">{new Date(drive.date).toLocaleString()} • {drive.city}</p>
                             </div>
-                            <Button variant="ghost" className="border border-white/20">View Attendees</Button>
+                            <Button variant="ghost" className="border border-white/20" onClick={() => handleViewAttendees(drive.id)}>
+                              View Attendees
+                            </Button>
                           </div>
                         ))}
                       </div>
@@ -245,6 +277,58 @@ const BankDashboard = () => {
           
         </div>
       </div>
+
+      {/* Attendees Modal */}
+      {isAttendeesModalOpen && selectedDriveAttendees && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-darkBg border border-glassWhite p-6 rounded-2xl w-full max-w-3xl max-h-[80vh] overflow-y-auto shadow-2xl"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-textColor">Drive Attendees</h2>
+              <button onClick={() => setIsAttendeesModalOpen(false)} className="text-textMuted hover:text-white">✕</button>
+            </div>
+            
+            {selectedDriveAttendees.attendees.length === 0 ? (
+              <div className="text-center py-8 text-textMuted">No donors have registered for this drive yet.</div>
+            ) : (
+              <div className="space-y-4">
+                {selectedDriveAttendees.attendees.map(attendee => (
+                  <div key={attendee.id} className="bg-glassWhite p-4 rounded-xl border border-white/10 flex flex-col md:flex-row justify-between gap-4">
+                    <div>
+                      <h3 className="font-bold text-textColor">{attendee.Donor?.full_name} <span className="text-bloodRed bg-bloodRed/10 px-2 py-0.5 rounded text-sm ml-2">{attendee.Donor?.blood_group}</span></h3>
+                      <p className="text-textMuted text-sm mt-1">{attendee.Donor?.phone} • {attendee.Donor?.city}</p>
+                      <div className="mt-2 text-sm">
+                        Status: <span className={attendee.status === 'Attended' ? 'text-green-400 font-bold' : 'text-yellow-400'}>{attendee.status}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col items-end gap-2 min-w-[200px]">
+                      {attendee.certificate_url ? (
+                        <>
+                          <a href={attendee.certificate_url} target="_blank" rel="noreferrer" className="text-blue-400 text-sm hover:underline">View Certificate</a>
+                          {attendee.certificate_status === 'Pending' && (
+                            <Button variant="primary" className="py-1 px-3 text-sm" onClick={() => handleVerifyAttendee(selectedDriveAttendees.driveId, attendee.id)}>
+                              Verify Attendance
+                            </Button>
+                          )}
+                          {attendee.certificate_status === 'Verified' && (
+                            <span className="text-green-400 text-sm font-bold flex items-center gap-1">✓ Verified</span>
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-textMuted text-sm italic">No certificate uploaded</span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };
