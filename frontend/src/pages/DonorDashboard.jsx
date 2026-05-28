@@ -107,8 +107,8 @@ const DonorDashboard = () => {
               <div className="space-y-2">
                 <Button variant={activeTab === 'dashboard' ? 'primary' : 'ghost'} onClick={() => setActiveTab('dashboard')} className="w-full justify-start text-left border border-textColor/10"><Activity size={18} /> Dashboard</Button>
                 <Button variant={activeTab === 'profile' ? 'primary' : 'ghost'} onClick={() => setActiveTab('profile')} className="w-full justify-start text-left border border-textColor/10"><User size={18} /> Profile Details</Button>
-                <Button variant="ghost" className="w-full justify-start text-left hover:bg-glassWhite/10"><Heart size={18} /> Donation History</Button>
-                <Button variant="ghost" className="w-full justify-start text-left hover:bg-glassWhite/10"><Bell size={18} /> Emergency Alerts</Button>
+                <Button variant={activeTab === 'history' ? 'primary' : 'ghost'} onClick={() => setActiveTab('history')} className="w-full justify-start text-left border border-textColor/10"><Heart size={18} /> Donation History</Button>
+                <Button variant={activeTab === 'alerts' ? 'primary' : 'ghost'} onClick={() => setActiveTab('alerts')} className="w-full justify-start text-left border border-textColor/10"><Bell size={18} /> Emergency Alerts</Button>
                 <hr className="border-textColor/10 my-4" />
                 <Button variant="ghost" onClick={handleLogout} className="w-full justify-start text-left text-red-500 hover:text-red-400 hover:bg-red-500/10"><LogOut size={18} /> Logout</Button>
               </div>
@@ -179,7 +179,7 @@ const DonorDashboard = () => {
                   </GlassCard>
                 </motion.div>
               </>
-            ) : (
+            ) : activeTab === 'profile' ? (
               <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                 <GlassCard>
                   <h2 className="text-2xl font-bold mb-6 border-b border-textColor/10 pb-4">Edit Profile Details</h2>
@@ -231,6 +231,30 @@ const DonorDashboard = () => {
                       <Button type="button" variant="ghost" onClick={() => setActiveTab('dashboard')} className="border border-textColor/10">Cancel</Button>
                     </div>
                   </form>
+                </GlassCard>
+              </motion.div>
+            ) : activeTab === 'history' ? (
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                <GlassCard>
+                  <h2 className="text-2xl font-bold mb-6 border-b border-textColor/10 pb-4">Donation History</h2>
+                  <div className="text-center py-12 text-textMuted">
+                    <Heart size={48} className="mx-auto mb-4 opacity-50 text-bloodRed" />
+                    <h3 className="text-lg font-bold text-textColor mb-2">You have made 3 donations!</h3>
+                    <p>Your last donation was on {profile?.last_donation_date || 'an unknown date'}.</p>
+                    <p className="mt-4 text-sm">Thank you for being a lifesaver. More detailed history tracking is coming soon.</p>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            ) : (
+              <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                <GlassCard>
+                  <h2 className="text-2xl font-bold mb-6 border-b border-textColor/10 pb-4">Emergency Alerts</h2>
+                  <div className="text-center py-12 text-textMuted">
+                    <Bell size={48} className="mx-auto mb-4 opacity-50 text-yellow-500" />
+                    <h3 className="text-lg font-bold text-textColor mb-2">No Active Alerts</h3>
+                    <p>There are no emergency requests matching your blood type ({profile?.blood_group}) in your area right now.</p>
+                    <p className="mt-4 text-sm">Make sure your availability status is set to "Available" so we can notify you if someone is in need.</p>
+                  </div>
                 </GlassCard>
               </motion.div>
             )}

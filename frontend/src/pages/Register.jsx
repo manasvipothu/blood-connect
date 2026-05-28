@@ -28,7 +28,16 @@ const Register = () => {
     }
 
     try {
-      const payload = { ...formData, last_donation_date: formData.last_donation_date || null };
+      // If the user selected today's date (meaning never donated), map to null so they are eligible
+      let donationDate = formData.last_donation_date;
+      if (donationDate) {
+        const today = new Date().toISOString().split('T')[0];
+        if (donationDate === today) {
+          donationDate = null;
+        }
+      }
+      
+      const payload = { ...formData, last_donation_date: donationDate || null };
       
       await axios.post('https://blood-connect-w1ox.onrender.com/api/auth/register/donor', payload);
       alert('Registration successful! Please login.');

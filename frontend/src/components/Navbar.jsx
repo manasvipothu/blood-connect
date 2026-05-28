@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Menu, X, Droplet, Moon, Sun } from 'lucide-react';
+import { Menu, X, Droplet, Moon, Sun, User } from 'lucide-react';
 import Button from './Button';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -59,12 +59,23 @@ const Navbar = () => {
               <button onClick={toggleTheme} className="text-textMuted hover:text-bloodRed transition-colors p-2 rounded-full hover:bg-gray-200 dark:hover:bg-white/10">
                 {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
               </button>
-              <Link to="/login">
-                <Button variant="ghost">Login</Button>
-              </Link>
-              <Link to="/register">
-                <Button variant="primary">Become a Donor</Button>
-              </Link>
+              
+              {localStorage.getItem('token') ? (
+                <Link to={localStorage.getItem('userRole') === 'bank' ? '/dashboard/bank' : '/dashboard/donor'}>
+                  <Button variant="primary" className="flex items-center gap-2">
+                    <User size={16} /> Dashboard
+                  </Button>
+                </Link>
+              ) : (
+                <>
+                  <Link to="/login">
+                    <Button variant="ghost">Login</Button>
+                  </Link>
+                  <Link to="/register">
+                    <Button variant="primary">Become a Donor</Button>
+                  </Link>
+                </>
+              )}
             </div>
           </div>
 
@@ -100,12 +111,23 @@ const Navbar = () => {
               </Link>
             ))}
             <hr className="border-gray-200 dark:border-white/10 my-2" />
-            <Link to="/login" onClick={() => setIsOpen(false)}>
-              <Button variant="secondary" className="w-full justify-center">Login</Button>
-            </Link>
-            <Link to="/register" onClick={() => setIsOpen(false)}>
-              <Button variant="primary" className="w-full justify-center">Become a Donor</Button>
-            </Link>
+            
+            {localStorage.getItem('token') ? (
+              <Link to={localStorage.getItem('userRole') === 'bank' ? '/dashboard/bank' : '/dashboard/donor'} onClick={() => setIsOpen(false)}>
+                <Button variant="primary" className="w-full justify-center flex items-center gap-2">
+                  <User size={16} /> My Dashboard
+                </Button>
+              </Link>
+            ) : (
+              <>
+                <Link to="/login" onClick={() => setIsOpen(false)}>
+                  <Button variant="secondary" className="w-full justify-center">Login</Button>
+                </Link>
+                <Link to="/register" onClick={() => setIsOpen(false)}>
+                  <Button variant="primary" className="w-full justify-center">Become a Donor</Button>
+                </Link>
+              </>
+            )}
           </div>
         </motion.div>
       )}
