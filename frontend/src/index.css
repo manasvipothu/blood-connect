@@ -1,0 +1,58 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-color: #f8fafc; /* slate-50 */
+    --text-color: #0f172a; /* slate-900 */
+    --text-muted: #64748b; /* slate-500 */
+    --glass-bg: rgba(255, 255, 255, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --input-bg: rgba(255, 255, 255, 0.5);
+    --input-border: rgba(0, 0, 0, 0.1);
+    --card-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+  }
+
+  .dark {
+    --bg-color: #0f172a; /* slate-900 */
+    --text-color: #ffffff;
+    --text-muted: #94a3b8; /* slate-400 */
+    --glass-bg: rgba(15, 23, 42, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --input-bg: rgba(0, 0, 0, 0.2);
+    --input-border: rgba(255, 255, 255, 0.1);
+    --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    @apply overflow-x-hidden transition-colors duration-300;
+    font-family: 'Inter', sans-serif;
+  }
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  box-shadow: var(--card-shadow);
+  transition: all 0.3s ease;
+}
+
+.input-glass {
+  background: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-color);
+  backdrop-filter: blur(4px);
+}
+.input-glass:focus {
+  outline: none;
+  border-color: #ff2a2a;
+}
+.input-glass::placeholder {
+  color: var(--text-muted);
+}
