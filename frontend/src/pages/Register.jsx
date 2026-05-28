@@ -17,8 +17,17 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Frontend Validation
+    const requiredFields = ['full_name', 'email', 'phone', 'blood_group', 'state', 'city', 'address', 'age', 'weight', 'last_donation_date', 'medical_conditions', 'password'];
+    for (let field of requiredFields) {
+      if (!formData[field]) {
+        alert(`Please fill out all compulsory details. Missing: ${field.replace('_', ' ')}`);
+        return;
+      }
+    }
+
     try {
-      // Map empty last_donation_date to null so Sequelize doesn't complain about invalid date string
       const payload = { ...formData, last_donation_date: formData.last_donation_date || null };
       
       await axios.post('https://blood-connect-w1ox.onrender.com/api/auth/register/donor', payload);
@@ -116,6 +125,7 @@ const Register = () => {
                       value={formData.blood_group}
                       onChange={e => setFormData({...formData, blood_group: e.target.value})}
                       className="w-full"
+                      required
                     />
                   </div>
 
@@ -137,10 +147,10 @@ const Register = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-textMuted mb-1 flex items-center gap-2"><MapPin size={14}/> Full Address</label>
+                  <label className="block text-sm font-medium text-textMuted mb-1 flex items-center gap-2"><MapPin size={14}/> Full Address *</label>
                   <div className="relative">
                     <MapPin size={16} className="absolute left-3 top-3.5 text-textMuted" />
-                    <input type="text" placeholder="Enter your complete address" className={inputClass} value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
+                    <input required type="text" placeholder="Enter your complete address" className={inputClass} value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
                   </div>
                 </div>
 
@@ -154,18 +164,19 @@ const Register = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-textMuted mb-1 flex items-center gap-2"><Weight size={14}/> Weight (kg)</label>
+                    <label className="block text-sm font-medium text-textMuted mb-1 flex items-center gap-2"><Weight size={14}/> Weight (kg) *</label>
                     <div className="relative">
                       <Weight size={16} className="absolute left-3 top-3.5 text-textMuted" />
-                      <input type="number" placeholder="Weight in kg" className={inputClass} value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} />
+                      <input required type="number" placeholder="Weight in kg" className={inputClass} value={formData.weight} onChange={e => setFormData({...formData, weight: e.target.value})} />
                     </div>
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-textMuted mb-1 flex items-center gap-2"><Calendar size={14}/> Last Donation Date</label>
+                    <label className="block text-sm font-medium text-textMuted mb-1 flex items-center gap-2"><Calendar size={14}/> Last Donation Date *</label>
                     <div className="relative">
                       <Calendar size={16} className="absolute left-3 top-3.5 text-textMuted" />
-                      <input type="date" className={inputClass} value={formData.last_donation_date} onChange={e => setFormData({...formData, last_donation_date: e.target.value})} />
+                      <input required type="date" title="Select today's date if you have never donated" className={inputClass} value={formData.last_donation_date} onChange={e => setFormData({...formData, last_donation_date: e.target.value})} />
+                      <span className="text-[10px] text-textMuted absolute -bottom-4 left-0">Select today's date if you've never donated.</span>
                     </div>
                   </div>
 
@@ -184,8 +195,8 @@ const Register = () => {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-textMuted mb-1">Medical Conditions (if any)</label>
-                  <input type="text" placeholder="E.g., Diabetes, Hypertension (Leave blank if none)" className="w-full bg-transparent border border-textColor/20 rounded-lg p-3 text-sm text-textColor focus:outline-none focus:border-bloodRed transition-colors" value={formData.medical_conditions} onChange={e => setFormData({...formData, medical_conditions: e.target.value})} />
+                  <label className="block text-sm font-medium text-textMuted mb-1">Medical Conditions (if any) *</label>
+                  <input required type="text" placeholder="E.g. None" className="w-full bg-transparent border border-textColor/20 rounded-lg p-3 text-sm text-textColor focus:outline-none focus:border-bloodRed transition-colors" value={formData.medical_conditions} onChange={e => setFormData({...formData, medical_conditions: e.target.value})} />
                 </div>
 
                 <Button type="submit" variant="primary" className="w-full py-4 text-lg mt-6">

@@ -31,58 +31,38 @@ const Search = () => {
     'Kalyan-Dombivli', 'Vasai-Virar', 'Varanasi', 'Srinagar', 'Aurangabad', 'Dhanbad', 'Amritsar'
   ].sort();
 
-  useEffect(() => {
-    const fetchDonors = async () => {
-      try {
-        const dummyDonors = [
-          { id: 'd1', full_name: 'Vanshika Indoria', blood_group: 'A+', city: 'Mumbai', state: 'Maharashtra', is_available: true, phone_number: '7977467808' },
-          { id: 'd2', full_name: 'Manasvi Pothu', blood_group: 'O-', city: 'Surat', state: 'Gujarat', is_available: true, phone_number: '8657313247', last_donation_date: '2026-01-31' },
-          { id: 'd3', full_name: 'Rahul Sharma', blood_group: 'B+', city: 'Delhi', state: 'Delhi', is_available: true, phone_number: '9811012345' },
-          { id: 'd4', full_name: 'Priya Patel', blood_group: 'AB+', city: 'Ahmedabad', state: 'Gujarat', is_available: true, phone_number: '9922334455', last_donation_date: '2025-11-15' },
-          { id: 'd5', full_name: 'Amit Kumar', blood_group: 'O+', city: 'Bangalore', state: 'Karnataka', is_available: false, phone_number: '9876543210' },
-          { id: 'd6', full_name: 'Sneha Reddy', blood_group: 'A-', city: 'Hyderabad', state: 'Telangana', is_available: true, phone_number: '9988776655' },
-          { id: 'd7', full_name: 'Rohan Gupta', blood_group: 'B-', city: 'Pune', state: 'Maharashtra', is_available: true, phone_number: '9898989898', last_donation_date: '2026-03-10' },
-          { id: 'd8', full_name: 'Anjali Desai', blood_group: 'O+', city: 'Jaipur', state: 'Rajasthan', is_available: true, phone_number: '9765432109' },
-          { id: 'd9', full_name: 'Vikram Singh', blood_group: 'AB-', city: 'Chennai', state: 'Tamil Nadu', is_available: true, phone_number: '9123456789' },
-          { id: 'd10', full_name: 'Neha Verma', blood_group: 'A+', city: 'Kolkata', state: 'West Bengal', is_available: false, phone_number: '9345678901' },
-          { id: 'd11', full_name: 'Karan Malhotra', blood_group: 'B+', city: 'Chandigarh', state: 'Chandigarh', is_available: true, phone_number: '9012345678' }
-        ];
-        
-        const res = await axios.get('https://blood-connect-w1ox.onrender.com/api/donors');
-        if (res.data && res.data.length > 0) {
-          setDonors([...dummyDonors, ...res.data]);
-        } else {
-          setDonors(dummyDonors);
-        }
-      } catch (error) {
-        console.error("Failed to fetch donors", error);
-        const fallbackDonors = [
-          { id: 'd1', full_name: 'Vanshika Indoria', blood_group: 'A+', city: 'Mumbai', state: 'Maharashtra', is_available: true, phone_number: '7977467808' },
-          { id: 'd2', full_name: 'Manasvi Pothu', blood_group: 'O-', city: 'Surat', state: 'Gujarat', is_available: true, phone_number: '8657313247', last_donation_date: '2026-01-31' },
-          { id: 'd3', full_name: 'Rahul Sharma', blood_group: 'B+', city: 'Delhi', state: 'Delhi', is_available: true, phone_number: '9811012345' },
-          { id: 'd4', full_name: 'Priya Patel', blood_group: 'AB+', city: 'Ahmedabad', state: 'Gujarat', is_available: true, phone_number: '9922334455', last_donation_date: '2025-11-15' },
-          { id: 'd5', full_name: 'Amit Kumar', blood_group: 'O+', city: 'Bangalore', state: 'Karnataka', is_available: false, phone_number: '9876543210' },
-          { id: 'd6', full_name: 'Sneha Reddy', blood_group: 'A-', city: 'Hyderabad', state: 'Telangana', is_available: true, phone_number: '9988776655' },
-          { id: 'd7', full_name: 'Rohan Gupta', blood_group: 'B-', city: 'Pune', state: 'Maharashtra', is_available: true, phone_number: '9898989898', last_donation_date: '2026-03-10' },
-          { id: 'd8', full_name: 'Anjali Desai', blood_group: 'O+', city: 'Jaipur', state: 'Rajasthan', is_available: true, phone_number: '9765432109' },
-          { id: 'd9', full_name: 'Vikram Singh', blood_group: 'AB-', city: 'Chennai', state: 'Tamil Nadu', is_available: true, phone_number: '9123456789' },
-          { id: 'd10', full_name: 'Neha Verma', blood_group: 'A+', city: 'Kolkata', state: 'West Bengal', is_available: false, phone_number: '9345678901' },
-          { id: 'd11', full_name: 'Karan Malhotra', blood_group: 'B+', city: 'Chandigarh', state: 'Chandigarh', is_available: true, phone_number: '9012345678' }
-        ];
-        setDonors(fallbackDonors);
+  const fetchDonors = async (searchFilters = filters) => {
+    try {
+      // Build query string based on filters
+      const params = new URLSearchParams();
+      if (searchFilters.blood_group) params.append('blood_group', searchFilters.blood_group);
+      if (searchFilters.city) params.append('city', searchFilters.city);
+      if (searchFilters.state) params.append('state', searchFilters.state);
+      
+      const res = await axios.get(`https://blood-connect-w1ox.onrender.com/api/donors/search?${params.toString()}`);
+      
+      if (res.data) {
+        setDonors(res.data);
       }
-    };
+    } catch (error) {
+      console.error("Failed to fetch donors", error);
+      setDonors([]);
+    }
+  };
+
+  useEffect(() => {
     fetchDonors();
   }, []);
 
   const handleSearch = (e) => {
     e.preventDefault();
-    // Simulate frontend filtering if backend search isn't fully implemented
-    console.log("Searching with filters:", filters);
+    fetchDonors(filters);
   };
 
   const clearFilters = () => {
-    setFilters({ name: '', blood_group: '', state: '', city: '', type: 'All Donors' });
+    const emptyFilters = { name: '', blood_group: '', state: '', city: '', type: 'All Donors' };
+    setFilters(emptyFilters);
+    fetchDonors(emptyFilters);
   };
 
   return (
@@ -177,17 +157,15 @@ const Search = () => {
                     </div>
                   </div>
                 </div>
-                {donor.is_available && (
-                  <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-semibold px-2 py-1 rounded-md flex items-center gap-1">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                    Available
-                  </span>
-                )}
+                <span className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs font-semibold px-2 py-1 rounded-md flex items-center gap-1">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  Eligible & Available
+                </span>
               </div>
               
               <div className="space-y-2 mb-6 text-sm text-textMuted">
                 <div className="flex items-center gap-2">
-                  <Phone size={14} /> +91 {donor.phone_number?.substring(donor.phone_number.length - 10) || '9876543210'}
+                  <Phone size={14} /> +91 {donor.phone?.substring(donor.phone.length - 10) || '9876543210'}
                 </div>
                 {donor.last_donation_date && (
                   <div className="flex items-center gap-2">
@@ -196,7 +174,7 @@ const Search = () => {
                 )}
               </div>
 
-              <a href={`tel:+91${donor.phone_number}`} className="block w-full">
+              <a href={`tel:+91${donor.phone}`} className="block w-full">
                 <button className="w-full bg-bloodRed hover:bg-red-700 text-white font-medium py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2">
                   <Phone size={16} /> Contact Donor
                 </button>

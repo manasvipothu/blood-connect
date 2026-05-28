@@ -4,7 +4,7 @@ const { generateToken } = require('../utils/jwtHelper');
 
 const registerDonor = async (req, res) => {
   try {
-    const { full_name, age, gender, blood_group, phone, email, password, city, state, address, last_donation_date } = req.body;
+    const { full_name, age, gender, blood_group, phone, email, password, city, state, address, last_donation_date, weight } = req.body;
 
     const existingDonor = await Donor.findOne({ where: { email } });
     if (existingDonor) return res.status(400).json({ error: 'Email already registered.' });
@@ -15,7 +15,7 @@ const registerDonor = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const newDonor = await Donor.create({
-      full_name, age, gender, blood_group, phone, email, password: hashedPassword, city, state, address, last_donation_date
+      full_name, age, gender, blood_group, phone, email, password: hashedPassword, city, state, address, last_donation_date, weight
     });
 
     const token = generateToken({ id: newDonor.id, role: 'donor' });

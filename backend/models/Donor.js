@@ -15,6 +15,10 @@ const Donor = sequelize.define('Donor', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
+  weight: {
+    type: DataTypes.INTEGER,
+    allowNull: true,
+  },
   gender: {
     type: DataTypes.ENUM('Male', 'Female', 'Other'),
     allowNull: false,
