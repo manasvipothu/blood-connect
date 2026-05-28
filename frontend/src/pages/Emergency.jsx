@@ -40,7 +40,7 @@ const Emergency = () => {
   useEffect(() => {
     const fetchRequests = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/emergencies');
+        const res = await axios.get('https://blood-connect-w1ox.onrender.com/api/emergencies');
         setRequests(res.data);
       } catch (err) {
         console.error(err);
@@ -48,7 +48,7 @@ const Emergency = () => {
     };
     fetchRequests();
 
-    const newSocket = io('http://localhost:5000');
+    const newSocket = io('https://blood-connect-w1ox.onrender.com');
     setSocket(newSocket);
 
     newSocket.on('new_emergency', (data) => {
@@ -61,7 +61,7 @@ const Emergency = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/emergencies', formData);
+      const res = await axios.post('https://blood-connect-w1ox.onrender.com/api/emergencies', formData);
       if (socket) {
         socket.emit('emergency_request', res.data.request);
       }
@@ -77,7 +77,7 @@ const Emergency = () => {
   const updateStatus = async (id, status) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`http://localhost:5000/api/emergencies/${id}/status`, { status }, {
+      await axios.put(`https://blood-connect-w1ox.onrender.com/api/emergencies/${id}/status`, { status }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setRequests(requests.map(req => req.id === id ? { ...req, status } : req));

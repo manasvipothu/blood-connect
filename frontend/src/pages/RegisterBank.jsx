@@ -16,7 +16,7 @@ const RegisterBank = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/auth/register/bloodbank', formData);
+      await axios.post('https://blood-connect-w1ox.onrender.com/api/auth/register/bloodbank', formData);
       alert('Registration successful! Please login.');
       navigate('/login');
     } catch (error) {

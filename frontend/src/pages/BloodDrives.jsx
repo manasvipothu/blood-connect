@@ -13,7 +13,7 @@ const BloodDrives = () => {
   useEffect(() => {
     const fetchDrives = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/drives');
+        const res = await axios.get('https://blood-connect-w1ox.onrender.com/api/drives');
         setDrives(res.data);
       } catch (error) {
         console.error('Failed to fetch drives', error);
@@ -31,7 +31,7 @@ const BloodDrives = () => {
         alert("Please login as a donor to register for a drive.");
         return;
       }
-      await axios.post(`http://localhost:5000/api/drives/${driveId}/register`, {}, {
+      await axios.post(`https://blood-connect-w1ox.onrender.com/api/drives/${driveId}/register`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       alert('Successfully registered for the blood drive!');

@@ -21,7 +21,7 @@ const Register = () => {
       // Map empty last_donation_date to null so Sequelize doesn't complain about invalid date string
       const payload = { ...formData, last_donation_date: formData.last_donation_date || null };
       
-      await axios.post('http://localhost:5000/api/auth/register/donor', payload);
+      await axios.post('https://blood-connect-w1ox.onrender.com/api/auth/register/donor', payload);
       alert('Registration successful! Please login.');
       navigate('/login');
     } catch (error) {

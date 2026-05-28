@@ -31,14 +31,14 @@ const BankDashboard = () => {
       }
 
       try {
-        const res = await axios.get('http://localhost:5000/api/banks/profile', {
+        const res = await axios.get('https://blood-connect-w1ox.onrender.com/api/banks/profile', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setProfile(res.data);
         setStock(res.data.blood_stock || {});
         
         // Also fetch their drives
-        const drivesRes = await axios.get('http://localhost:5000/api/drives/my-drives', {
+        const drivesRes = await axios.get('https://blood-connect-w1ox.onrender.com/api/drives/my-drives', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setDrives(drivesRes.data);
@@ -60,7 +60,7 @@ const BankDashboard = () => {
     const token = localStorage.getItem('token');
 
     try {
-      await axios.put('http://localhost:5000/api/banks/stock', { blood_stock: newStock }, {
+      await axios.put('https://blood-connect-w1ox.onrender.com/api/banks/stock', { blood_stock: newStock }, {
         headers: { Authorization: `Bearer ${token}` }
       });
     } catch (error) {
@@ -74,7 +74,7 @@ const BankDashboard = () => {
     const token = localStorage.getItem('token');
     
     try {
-      const res = await axios.post('http://localhost:5000/api/drives', newDrive, {
+      const res = await axios.post('https://blood-connect-w1ox.onrender.com/api/drives', newDrive, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setDrives([res.data.drive, ...drives]);

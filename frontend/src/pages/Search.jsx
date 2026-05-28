@@ -48,7 +48,7 @@ const Search = () => {
           { id: 'd11', full_name: 'Karan Malhotra', blood_group: 'B+', city: 'Chandigarh', state: 'Chandigarh', is_available: true, phone_number: '9012345678' }
         ];
         
-        const res = await axios.get('http://localhost:5000/api/donors');
+        const res = await axios.get('https://blood-connect-w1ox.onrender.com/api/donors');
         if (res.data && res.data.length > 0) {
           setDonors([...dummyDonors, ...res.data]);
         } else {

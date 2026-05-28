@@ -13,7 +13,7 @@ const BloodBanks = () => {
     // In a real app this would call /api/banks. Since this is dummy data/demo, we mix real + dummy
     const fetchBanks = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/banks');
+        const res = await axios.get('https://blood-connect-w1ox.onrender.com/api/banks');
         // Let's add some dummy banks to make the UI look like the screenshot if DB is empty
         const dummyBanks = [
           { id: 'd1', blood_bank_name: 'KEM Hospital Blood Bank', license_number: 'BB-MH-024', city: 'Mumbai', state: 'Maharashtra', address: 'Acharya Donde Marg, Parel, Mumbai', phone_number: '+91 2224107000', operating_hours: '24/7' },

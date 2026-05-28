@@ -22,7 +22,7 @@ const DonorDashboard = () => {
       }
       
       try {
-        const res = await axios.get('http://localhost:5000/api/donors/profile', {
+        const res = await axios.get('https://blood-connect-w1ox.onrender.com/api/donors/profile', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setProfile(res.data);
@@ -42,7 +42,7 @@ const DonorDashboard = () => {
   const toggleAvailability = async () => {
     const token = localStorage.getItem('token');
     try {
-      await axios.put('http://localhost:5000/api/donors/availability', { availability: !isAvailable }, {
+      await axios.put('https://blood-connect-w1ox.onrender.com/api/donors/availability', { availability: !isAvailable }, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setIsAvailable(!isAvailable);
